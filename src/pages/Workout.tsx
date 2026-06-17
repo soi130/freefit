@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAsync } from '../hooks/useAsync';
+import { useRestTimer } from '../hooks/useRestTimer';
+import { useWakeLock } from '../hooks/useWakeLock';
 import {
   exercisesRepo,
   sessionsRepo,
@@ -11,7 +13,9 @@ import {
 import Sheet from '../components/Sheet';
 import ExerciseCard from '../components/workout/ExerciseCard';
 import ExercisePicker from '../components/workout/ExercisePicker';
+import RestTimer from '../components/workout/RestTimer';
 import { PlusIcon } from '../components/icons';
+import { beep, vibrate } from '../utils/audio';
 import { formatDate, todayISO } from '../utils/format';
 
 const ACTIVE_SESSION_KEY = 'activeSessionId';
@@ -27,6 +31,15 @@ export default function Workout() {
   const [name, setName] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const initRef = useRef(false);
+
+  const timer = useRestTimer(() => {
+    beep(400);
+    vibrate([300, 120, 300]);
+  });
+  // Keep the screen awake for the whole workout.
+  useWakeLock(true);
+
+  const restSeconds = user?.defaultRestSeconds ?? 90;
 
   // Resume the in-progress session or start a fresh one.
   useEffect(() => {
@@ -154,6 +167,7 @@ export default function Workout() {
           sets={sets.filter((s) => s.exerciseId === id).sort((a, b) => a.setNumber - b.setNumber)}
           onChanged={reload}
           onRemove={() => removeExercise(id)}
+          onSetLogged={() => timer.start(restSeconds)}
         />
       ))}
 
@@ -171,9 +185,13 @@ export default function Workout() {
         </button>
       </div>
 
+      {timer.active && <div className="h-16" aria-hidden />}
+
       <Sheet open={pickerOpen} title="Add exercise" onClose={() => setPickerOpen(false)}>
         <ExercisePicker exercises={exercises} activeIds={order} onPick={pickExercise} />
       </Sheet>
+
+      <RestTimer timer={timer} />
     </div>
   );
 }

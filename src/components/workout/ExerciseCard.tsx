@@ -14,6 +14,7 @@ export default function ExerciseCard({
   sets,
   onChanged,
   onRemove,
+  onSetLogged,
 }: {
   userId: string;
   sessionId: string;
@@ -22,6 +23,7 @@ export default function ExerciseCard({
   sets: WorkoutSet[];
   onChanged: () => void;
   onRemove: () => void;
+  onSetLogged: () => void;
 }) {
   const { data: previous } = useAsync(
     () => setsRepo.previousForExercise(userId, exerciseId, sessionId),
@@ -62,6 +64,7 @@ export default function ExerciseCard({
       completedAt: new Date().toISOString(),
     });
     onChanged();
+    onSetLogged();
   }
 
   async function removeSet(id: string) {

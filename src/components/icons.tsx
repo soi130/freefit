@@ -70,3 +70,27 @@ export const CheckIcon = (p: IconProps) => (
     <path d="M5 13l4 4L19 7" />
   </svg>
 );
+
+export const PlayIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M7 5l12 7-12 7V5Z" />
+  </svg>
+);
+
+export const PauseIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M8 5v14M16 5v14" />
+  </svg>
+);
+
+export const ResetIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M4 4v5h5M4.5 13a8 8 0 1 0 1.7-5.3L4 9" />
+  </svg>
+);
+
+export const CloseIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </svg>
+);
