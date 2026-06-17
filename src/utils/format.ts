@@ -9,6 +9,11 @@ export function formatDate(iso: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+export function formatShortDate(iso: string): string {
+  const d = new Date(iso.length === 10 ? `${iso}T00:00:00` : iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
 export function formatWeight(kg: number): string {
   return `${Number.isInteger(kg) ? kg : kg.toFixed(1)} kg`;
 }
