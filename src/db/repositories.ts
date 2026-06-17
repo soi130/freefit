@@ -48,6 +48,20 @@ export const sessionsRepo = {
     await (await getDB()).put(STORE.workoutSessions, session);
     return session;
   },
+  async update(
+    id: string,
+    patch: Partial<Omit<WorkoutSession, 'id' | 'createdAt'>>,
+  ): Promise<WorkoutSession> {
+    const db = await getDB();
+    const existing = await db.get(STORE.workoutSessions, id);
+    if (!existing) throw new Error(`Session ${id} not found`);
+    const updated: WorkoutSession = { ...existing, ...patch, updatedAt: now() };
+    await db.put(STORE.workoutSessions, updated);
+    return updated;
+  },
+  async delete(id: string): Promise<void> {
+    await (await getDB()).delete(STORE.workoutSessions, id);
+  },
 };
 
 // ---- Exercises ----
@@ -59,6 +73,13 @@ export const exercisesRepo = {
     const ex: Exercise = { ...input, id: newId(), createdAt: now(), updatedAt: now() };
     await (await getDB()).put(STORE.exercises, ex);
     return ex;
+  },
+  async findOrCreate(userId: string, name: string): Promise<Exercise> {
+    const trimmed = name.trim();
+    const existing = (await exercisesRepo.byUser(userId)).find(
+      (e) => e.name.toLowerCase() === trimmed.toLowerCase(),
+    );
+    return existing ?? exercisesRepo.create({ userId, name: trimmed });
   },
 };
 
@@ -75,6 +96,32 @@ export const setsRepo = {
     const set: WorkoutSet = { ...input, id: newId() };
     await (await getDB()).put(STORE.workoutSets, set);
     return set;
+  },
+  async delete(id: string): Promise<void> {
+    await (await getDB()).delete(STORE.workoutSets, id);
+  },
+  async deleteBySession(sessionId: string): Promise<void> {
+    const db = await getDB();
+    const rows = await db.getAllFromIndex(STORE.workoutSets, 'by-session', sessionId);
+    await Promise.all(rows.map((r) => db.delete(STORE.workoutSets, r.id)));
+  },
+  // Sets from the most recent *other* session in which this exercise was done.
+  async previousForExercise(
+    userId: string,
+    exerciseId: string,
+    excludeSessionId: string,
+  ): Promise<WorkoutSet[]> {
+    const db = await getDB();
+    const rows = await db.getAllFromIndex(STORE.workoutSets, 'by-user-exercise', [
+      userId,
+      exerciseId,
+    ]);
+    const others = rows.filter((r) => r.sessionId !== excludeSessionId);
+    if (others.length === 0) return [];
+    const latest = others.reduce((a, b) => (b.completedAt > a.completedAt ? b : a));
+    return others
+      .filter((r) => r.sessionId === latest.sessionId)
+      .sort((a, b) => a.setNumber - b.setNumber);
   },
 };
 

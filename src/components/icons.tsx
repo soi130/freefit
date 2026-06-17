@@ -58,3 +58,15 @@ export const ScaleIcon = (p: IconProps) => (
     <path d="M12 8a3 3 0 0 0-3 3h6a3 3 0 0 0-3-3ZM12 8V6" />
   </svg>
 );
+
+export const TrashIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M10 11v6M14 11v6" />
+  </svg>
+);
+
+export const CheckIcon = (p: IconProps) => (
+  <svg {...base} {...p}>
+    <path d="M5 13l4 4L19 7" />
+  </svg>
+);
