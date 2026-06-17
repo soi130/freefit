@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ActiveUserProvider, useActiveUser } from './hooks/useActiveUser';
+import { UserProvider, useUser } from './hooks/useUser';
 import BottomNav from './components/BottomNav';
 import Today from './pages/Today';
 import Settings from './pages/Settings';
 import Placeholder from './pages/Placeholder';
 
 function Shell() {
-  const { loading } = useActiveUser();
+  const { loading } = useUser();
 
   if (loading) {
     return (
@@ -36,8 +36,8 @@ function Shell() {
 
 export default function App() {
   return (
-    <ActiveUserProvider>
+    <UserProvider>
       <Shell />
-    </ActiveUserProvider>
+    </UserProvider>
   );
 }

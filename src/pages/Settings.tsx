@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { useActiveUser } from '../hooks/useActiveUser';
-import UserEditForm from '../components/forms/UserEditForm';
+import { useUser } from '../hooks/useUser';
+import ProfileForm from '../components/forms/ProfileForm';
 import {
   enableSound,
   beep,
@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function Settings() {
-  const { users, refreshUsers } = useActiveUser();
+  const { user, refreshUser } = useUser();
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [status, setStatus] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,7 +58,7 @@ export default function Settings() {
   }
 
   async function handleClear() {
-    if (!confirm('Delete ALL local data for both users? This cannot be undone.')) return;
+    if (!confirm('Delete ALL local data on this device? This cannot be undone.')) return;
     await clearAll();
     setStatus('All data cleared. Reloading…');
     setTimeout(() => window.location.reload(), 800);
@@ -68,13 +68,8 @@ export default function Settings() {
     <div className="space-y-7">
       <h1 className="text-2xl font-black text-ink">Settings</h1>
 
-      <Section title="User profiles">
-        {users.map((u) => (
-          <div key={u.id} className="space-y-2">
-            <p className="font-extrabold text-ink">{u.name}</p>
-            <UserEditForm user={u} onSaved={refreshUsers} />
-          </div>
-        ))}
+      <Section title="Profile">
+        {user && <ProfileForm user={user} onSaved={refreshUser} />}
       </Section>
 
       <Section title="Sound & vibration">

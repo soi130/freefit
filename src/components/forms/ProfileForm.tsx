@@ -1,20 +1,15 @@
 import { useState } from 'react';
 import type { User } from '../../types';
 import { usersRepo } from '../../db/repositories';
-import {
-  validateName,
-  validateRestSeconds,
-  validateBodyWeight,
-} from '../../utils/validation';
+import { validateRestSeconds, validateBodyWeight } from '../../utils/validation';
 
-export default function UserEditForm({
+export default function ProfileForm({
   user,
   onSaved,
 }: {
   user: User;
   onSaved: () => void;
 }) {
-  const [name, setName] = useState(user.name);
   const [rest, setRest] = useState(String(user.defaultRestSeconds));
   const [start, setStart] = useState(String(user.startingWeight));
   const [target, setTarget] = useState(String(user.targetWeight));
@@ -23,7 +18,6 @@ export default function UserEditForm({
 
   async function submit() {
     const checks = [
-      validateName(name),
       validateRestSeconds(Number(rest)),
       validateBodyWeight(Number(start)),
       validateBodyWeight(Number(target)),
@@ -34,7 +28,6 @@ export default function UserEditForm({
       return;
     }
     await usersRepo.update(user.id, {
-      name: name.trim(),
       defaultRestSeconds: Number(rest),
       startingWeight: Number(start),
       targetWeight: Number(target),
@@ -48,21 +41,14 @@ export default function UserEditForm({
   return (
     <div className="card space-y-3">
       <div>
-        <label className="label">Name</label>
-        <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="label">Rest (sec)</label>
-          <input
-            className="input"
-            type="number"
-            inputMode="numeric"
-            value={rest}
-            onChange={(e) => setRest(e.target.value)}
-          />
-        </div>
-        <div />
+        <label className="label">Default rest (seconds)</label>
+        <input
+          className="input"
+          type="number"
+          inputMode="numeric"
+          value={rest}
+          onChange={(e) => setRest(e.target.value)}
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>

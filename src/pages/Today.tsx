@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useActiveUser } from '../hooks/useActiveUser';
+import { useUser } from '../hooks/useUser';
 import { useAsync } from '../hooks/useAsync';
 import { sessionsRepo, setsRepo, weightRepo } from '../db/repositories';
-import UserSwitcher from '../components/UserSwitcher';
 import StatCard from '../components/StatCard';
 import Sheet from '../components/Sheet';
 import WeightForm from '../components/forms/WeightForm';
 import { PlusIcon, ScaleIcon } from '../components/icons';
-import { formatDate, formatRest, formatWeight, startOfWeekISO } from '../utils/format';
+import { formatDate, formatRest, formatWeight, startOfWeekISO, todayISO } from '../utils/format';
 
 export default function Today() {
-  const { activeUser } = useActiveUser();
+  const { user } = useUser();
   const navigate = useNavigate();
   const [weightOpen, setWeightOpen] = useState(false);
-  const userId = activeUser?.id ?? '';
+  const userId = user?.id ?? '';
 
   const { data, reload } = useAsync(async () => {
     if (!userId) return null;
@@ -34,16 +33,14 @@ export default function Today() {
     return { latestWeight, thisWeek, last, lastSummary };
   }, [userId]);
 
-  if (!activeUser) return null;
+  if (!user) return null;
 
   return (
     <div className="space-y-5">
       <header>
-        <p className="text-sm font-bold text-olive-700/70">Welcome back,</p>
-        <h1 className="text-2xl font-black text-ink">{activeUser.name}</h1>
+        <p className="text-sm font-bold text-olive-700/70">{formatDate(todayISO())}</p>
+        <h1 className="text-2xl font-black text-ink">Today</h1>
       </header>
-
-      <UserSwitcher />
 
       <div className="grid grid-cols-2 gap-3">
         <button className="btn-primary h-20 flex-col text-base" onClick={() => navigate('/workout')}>
@@ -76,7 +73,7 @@ export default function Today() {
         hint={data?.last ? formatDate(data.last.date) : undefined}
       />
 
-      <StatCard label="Default rest timer" value={formatRest(activeUser.defaultRestSeconds)} />
+      <StatCard label="Default rest timer" value={formatRest(user.defaultRestSeconds)} />
 
       <Sheet open={weightOpen} title="Log body weight" onClose={() => setWeightOpen(false)}>
         <WeightForm
