@@ -167,7 +167,7 @@ export default function Workout() {
         </button>
       </div>
 
-      {timer.active && <div className="h-40" aria-hidden />}
+      {timer.active && <div className="h-52" aria-hidden />}
 
       <RestTimer timer={timer} />
     </div>
