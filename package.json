@@ -8,8 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "gen-icons": "node scripts/gen-icons.mjs",
-    "postinstall": "node scripts/gen-icons.mjs"
+    "gen-icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "idb": "^8.0.0",
@@ -24,6 +23,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
+    "sharp": "^0.35.1",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.5.4",
     "vite": "^5.4.8",
