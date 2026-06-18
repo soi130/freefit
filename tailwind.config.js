@@ -1,12 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Olive + Brick pastel cartoon palette
-        cream: '#f7f5ee',
-        ink: '#33321c',
+        // Neutrals + accents that flip between light/dark via CSS variables.
+        cream: 'rgb(var(--c-cream) / <alpha-value>)',
+        ink: 'rgb(var(--c-ink) / <alpha-value>)',
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        subtle: 'rgb(var(--c-subtle) / <alpha-value>)',
+        line: 'rgb(var(--c-line) / <alpha-value>)',
+        accent: 'rgb(var(--c-accent) / <alpha-value>)',
+        // Olive + Brick pastel cartoon palette (fills, buttons, chips)
         olive: {
           50: '#f3f4ea',
           100: '#e4e7cf',
@@ -36,8 +42,8 @@ export default {
         card: '1.25rem',
       },
       boxShadow: {
-        stroke: '0 3px 0 0 rgba(51,50,28,0.9)',
-        'stroke-sm': '0 2px 0 0 rgba(51,50,28,0.9)',
+        stroke: '0 3px 0 0 rgb(var(--c-stroke))',
+        'stroke-sm': '0 2px 0 0 rgb(var(--c-stroke))',
       },
     },
   },

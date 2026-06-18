@@ -4,6 +4,24 @@
 
 :root {
   color-scheme: light;
+  --c-cream: 247 245 238;
+  --c-ink: 51 50 28;
+  --c-surface: 255 255 255;
+  --c-subtle: 243 244 234;
+  --c-line: 205 211 164;
+  --c-accent: 82 94 46;
+  --c-stroke: 51 50 28;
+}
+
+.dark {
+  color-scheme: dark;
+  --c-cream: 24 24 19;
+  --c-ink: 232 230 219;
+  --c-surface: 38 38 30;
+  --c-subtle: 48 49 38;
+  --c-line: 70 74 52;
+  --c-accent: 179 189 120;
+  --c-stroke: 8 8 6;
 }
 
 html,
@@ -14,15 +32,15 @@ body,
 
 body {
   margin: 0;
-  background-color: theme('colors.cream');
-  color: theme('colors.ink');
+  background-color: rgb(var(--c-cream));
+  color: rgb(var(--c-ink));
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
 
 @layer components {
   .card {
-    @apply rounded-card border-2 border-ink bg-white p-4 shadow-stroke;
+    @apply rounded-card border-2 border-ink bg-surface p-4 shadow-stroke;
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-card border-2 border-ink px-4 py-3 text-base font-extrabold shadow-stroke-sm transition-transform active:translate-y-0.5 active:shadow-none disabled:opacity-50;
@@ -34,12 +52,12 @@ body {
     @apply btn bg-brick-500 text-white;
   }
   .btn-ghost {
-    @apply btn bg-white text-ink;
+    @apply btn bg-surface text-ink;
   }
   .input {
-    @apply w-full rounded-card border-2 border-ink bg-white px-4 py-3 text-base font-bold outline-none focus:ring-2 focus:ring-olive-300;
+    @apply w-full rounded-card border-2 border-ink bg-surface px-4 py-3 text-base font-bold outline-none focus:ring-2 focus:ring-olive-300;
   }
   .label {
-    @apply mb-1 block text-sm font-bold text-olive-700;
+    @apply mb-1 block text-sm font-bold text-accent;
   }
 }

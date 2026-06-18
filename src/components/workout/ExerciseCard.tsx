@@ -99,9 +99,9 @@ export default function ExerciseCard({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-base font-black text-ink">{exerciseName}</h3>
-          <p className="text-xs font-bold text-olive-700/70">Target: {targetLabel}</p>
+          <p className="text-xs font-bold text-accent/70">Target: {targetLabel}</p>
         </div>
-        <span className="shrink-0 rounded-card bg-olive-100 px-2 py-1 text-xs font-black text-olive-700">
+        <span className="shrink-0 rounded-card bg-accent/15 px-2 py-1 text-xs font-black text-accent">
           {done}/{targetSets}
         </span>
       </div>
@@ -117,7 +117,7 @@ export default function ExerciseCard({
           {sets.map((s) => (
             <li
               key={s.id}
-              className="flex items-center justify-between rounded-card border-2 border-olive-200 bg-olive-50 px-3 py-2"
+              className="flex items-center justify-between rounded-card border-2 border-line bg-subtle px-3 py-2"
             >
               <span className="text-sm font-bold text-ink">
                 <span className="text-ink/40">

@@ -1,4 +1,6 @@
 import { todayISO } from '../../utils/format';
+import { useResolvedTheme } from '../../hooks/useTheme';
+import { chartPalette } from './palette';
 
 const WEEKS = 13;
 
@@ -7,8 +9,15 @@ function isoOf(d: Date): string {
   return new Date(d.getTime() - tz).toISOString().slice(0, 10);
 }
 
-function cellColor(count: number): string {
-  if (count <= 0) return '#e4e7cf';
+// Brighter = more workouts. The ramp direction flips per theme so "more" always
+// stands out against the background.
+function cellColor(count: number, empty: string, dark: boolean): string {
+  if (count <= 0) return empty;
+  if (dark) {
+    if (count === 1) return '#6b7d3a';
+    if (count === 2) return '#9aa654';
+    return '#b3bd78';
+  }
   if (count === 1) return '#9aa654';
   if (count === 2) return '#6b7d3a';
   return '#3f4825';
@@ -16,6 +25,8 @@ function cellColor(count: number): string {
 
 // GitHub-style heatmap of the last 13 weeks (columns = weeks, rows = Mon–Sun).
 export default function ConsistencyCalendar({ counts }: { counts: Map<string, number> }) {
+  const dark = useResolvedTheme() === 'dark';
+  const p = chartPalette(dark);
   const today = new Date();
   const todayIso = todayISO();
   const dow = (today.getDay() + 6) % 7; // Monday = 0
@@ -41,8 +52,8 @@ export default function ConsistencyCalendar({ counts }: { counts: Map<string, nu
               title={`${cell.iso}: ${cell.count} workout${cell.count === 1 ? '' : 's'}`}
               className="aspect-square w-full rounded-[3px]"
               style={{
-                backgroundColor: cell.future ? 'transparent' : cellColor(cell.count),
-                border: cell.future ? 'none' : '1px solid rgba(51,50,28,0.12)',
+                backgroundColor: cell.future ? 'transparent' : cellColor(cell.count, p.emptyCell, dark),
+                border: cell.future ? 'none' : `1px solid ${p.cellBorder}`,
               }}
             />
           ))}

@@ -13,10 +13,10 @@ export default function StatCard({
 }) {
   return (
     <div className="card">
-      <p className="text-xs font-bold uppercase tracking-wide text-olive-700/70">{label}</p>
+      <p className="text-xs font-bold uppercase tracking-wide text-accent/70">{label}</p>
       <p
         className={`mt-1 text-2xl font-black ${
-          accent === 'brick' ? 'text-brick-500' : 'text-olive-700'
+          accent === 'brick' ? 'text-brick-500' : 'text-accent'
         }`}
       >
         {value}

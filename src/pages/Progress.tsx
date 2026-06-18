@@ -16,7 +16,7 @@ import { formatWeight } from '../utils/format';
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-black uppercase tracking-wide text-olive-700/70">{title}</h2>
+      <h2 className="text-sm font-black uppercase tracking-wide text-accent/70">{title}</h2>
       {children}
     </section>
   );
@@ -54,7 +54,7 @@ export default function Progress() {
       <Section title="Consistency">
         <div className="card space-y-3">
           <ConsistencyCalendar counts={data?.counts ?? new Map()} />
-          <p className="text-xs font-semibold text-ink/50">Last 13 weeks · darker = more workouts</p>
+          <p className="text-xs font-semibold text-ink/50">Last 13 weeks · more color = more workouts</p>
         </div>
       </Section>
 
@@ -79,12 +79,12 @@ export default function Progress() {
       </Section>
 
       <Section title="Personal records">
-        <div className="card divide-y-2 divide-olive-100">
+        <div className="card divide-y-2 divide-line">
           {data && data.records.length > 0 ? (
             data.records.map((r) => (
               <div key={r.exerciseId} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                 <span className="font-black text-ink">{r.exerciseName}</span>
-                <span className="text-right text-sm font-bold text-olive-700">
+                <span className="text-right text-sm font-bold text-accent">
                   {formatWeight(r.maxWeight)} × {r.repsAtMax}
                   <span className="block text-xs font-semibold text-ink/40">
                     ~{Math.round(r.estOneRepMax)} kg 1RM

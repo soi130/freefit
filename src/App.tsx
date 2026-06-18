@@ -16,7 +16,7 @@ function Shell() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="animate-pulse text-lg font-black text-olive-600">Loading…</p>
+        <p className="animate-pulse text-lg font-black text-accent">Loading…</p>
       </div>
     );
   }
@@ -26,7 +26,7 @@ function Shell() {
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
       <div className="mx-auto min-h-screen max-w-md px-4 pb-28 pt-6">
-        <Suspense fallback={<p className="py-24 text-center font-black text-olive-600">Loading…</p>}>
+        <Suspense fallback={<p className="py-24 text-center font-black text-accent">Loading…</p>}>
           <Routes>
             <Route path="/" element={<Today />} />
             <Route path="/workout" element={<Workout />} />

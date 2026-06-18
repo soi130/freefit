@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 import { useUser } from '../hooks/useUser';
+import { useThemePref } from '../hooks/useTheme';
+import { setThemePref, type ThemePref } from '../utils/theme';
 import ProfileForm from '../components/forms/ProfileForm';
 import {
   enableSound,
@@ -10,10 +12,16 @@ import {
 } from '../utils/audio';
 import { exportAll, importAll, clearAll, isBackupData } from '../db/backup';
 
+const THEME_OPTIONS: { value: ThemePref; label: string }[] = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+];
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-black uppercase tracking-wide text-olive-700/70">{title}</h2>
+      <h2 className="text-sm font-black uppercase tracking-wide text-accent/70">{title}</h2>
       {children}
     </section>
   );
@@ -21,6 +29,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function Settings() {
   const { user, refreshUser } = useUser();
+  const themePref = useThemePref();
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [status, setStatus] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -72,6 +81,26 @@ export default function Settings() {
         {user && <ProfileForm user={user} onSaved={refreshUser} />}
       </Section>
 
+      <Section title="Appearance">
+        <div className="card space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            {THEME_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                className={themePref === opt.value ? 'btn-primary' : 'btn-ghost'}
+                aria-pressed={themePref === opt.value}
+                onClick={() => setThemePref(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs font-semibold text-ink/40">
+            System follows your device’s light/dark setting.
+          </p>
+        </div>
+      </Section>
+
       <Section title="Sound & vibration">
         <div className="card space-y-3">
           <p className="text-sm font-semibold text-ink/60">
@@ -118,7 +147,7 @@ export default function Settings() {
           <button className="btn-brick w-full" onClick={handleClear}>
             Clear all local data
           </button>
-          {status && <p className="text-sm font-bold text-olive-700">{status}</p>}
+          {status && <p className="text-sm font-bold text-accent">{status}</p>}
         </div>
       </Section>
 

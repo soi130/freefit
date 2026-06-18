@@ -26,7 +26,7 @@ export default function BottomNav() {
               end={end}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 py-2 text-[11px] font-extrabold transition-colors ${
-                  isActive ? 'text-brick-500' : 'text-olive-700/70'
+                  isActive ? 'text-brick-500' : 'text-accent/70'
                 }`
               }
             >

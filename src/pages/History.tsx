@@ -11,7 +11,7 @@ import { formatDate, formatSet, formatWeight } from '../utils/format';
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-black uppercase tracking-wide text-olive-700/70">{title}</h2>
+      <h2 className="text-sm font-black uppercase tracking-wide text-accent/70">{title}</h2>
       {children}
     </section>
   );
@@ -50,7 +50,7 @@ function SessionDetail({ session, sets }: { session: WorkoutSession; sets: Worko
             {g.sets.map((s) => (
               <li
                 key={s.id}
-                className="flex justify-between rounded-card border-2 border-olive-200 bg-olive-50 px-3 py-1.5 text-sm font-bold"
+                className="flex justify-between rounded-card border-2 border-line bg-subtle px-3 py-1.5 text-sm font-bold"
               >
                 <span className="text-ink/40">#{s.setNumber}</span>
                 <span>{formatSet(s)}</span>
@@ -117,7 +117,7 @@ export default function History() {
                       <p className="font-black text-ink">{s.workoutName || 'Workout'}</p>
                       <p className="text-sm font-semibold text-ink/50">{formatDate(s.date)}</p>
                     </div>
-                    <div className="text-right text-sm font-bold text-olive-700">
+                    <div className="text-right text-sm font-bold text-accent">
                       {stat.volume.toLocaleString()} kg
                       <span className="block text-xs font-semibold text-ink/40">
                         {stat.setCount} sets
@@ -137,7 +137,7 @@ export default function History() {
 
       <Section title="Weight log">
         {data && data.weights.length > 0 ? (
-          <ul className="card divide-y-2 divide-olive-100">
+          <ul className="card divide-y-2 divide-line">
             {data.weights.map((w) => (
               <li
                 key={w.id}

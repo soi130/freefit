@@ -39,7 +39,7 @@ export default function Today() {
   return (
     <div className="space-y-5">
       <header>
-        <p className="text-sm font-bold text-olive-700/70">{formatDate(todayISO())}</p>
+        <p className="text-sm font-bold text-accent/70">{formatDate(todayISO())}</p>
         <h1 className="text-2xl font-black text-ink">Today</h1>
       </header>
 

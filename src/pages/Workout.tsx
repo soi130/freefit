@@ -120,7 +120,7 @@ export default function Workout() {
   return (
     <div className="space-y-5 pb-4">
       <header className="space-y-3">
-        <p className="text-sm font-bold text-olive-700/70">{formatDate(todayISO())}</p>
+        <p className="text-sm font-bold text-accent/70">{formatDate(todayISO())}</p>
         <div className="card flex items-center justify-between">
           <div>
             <p className="text-3xl font-black tabular-nums text-ink">{formatClock(elapsed)}</p>
@@ -129,7 +129,7 @@ export default function Workout() {
             )}
           </div>
           <div className="text-right">
-            <p className="text-sm font-black text-olive-700">{totalVolume.toLocaleString()} kg</p>
+            <p className="text-sm font-black text-accent">{totalVolume.toLocaleString()} kg</p>
             <p className="text-xs font-semibold text-ink/40">
               {sets.length} {sets.length === 1 ? 'set' : 'sets'}
             </p>
@@ -167,7 +167,7 @@ export default function Workout() {
         </button>
       </div>
 
-      {timer.active && <div className="h-16" aria-hidden />}
+      {timer.active && <div className="h-40" aria-hidden />}
 
       <RestTimer timer={timer} />
     </div>

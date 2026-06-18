@@ -15,7 +15,7 @@ export default function TemplatePicker({
 
       {TEMPLATE_GROUPS.map((group) => (
         <section key={group} className="space-y-3">
-          <h2 className="text-sm font-black uppercase tracking-wide text-olive-700/70">{group}</h2>
+          <h2 className="text-sm font-black uppercase tracking-wide text-accent/70">{group}</h2>
           <ul className="space-y-3">
             {TEMPLATES.filter((tpl) => tpl.group === group).map((tpl) => (
               <li key={tpl.id}>
@@ -29,7 +29,7 @@ export default function TemplatePicker({
                       {tpl.exercises.length} exercises · ~{tpl.estMinLow}–{tpl.estMinHigh} min
                     </p>
                   </div>
-                  <span aria-hidden className="text-xl font-black text-olive-600">
+                  <span aria-hidden className="text-xl font-black text-accent">
                     ›
                   </span>
                 </button>
