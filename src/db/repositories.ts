@@ -4,6 +4,7 @@ import type {
   User,
   WorkoutSession,
   Exercise,
+  ExerciseMetric,
   WorkoutSet,
   WeightLog,
   Setting,
@@ -74,12 +75,17 @@ export const exercisesRepo = {
     await (await getDB()).put(STORE.exercises, ex);
     return ex;
   },
-  async findOrCreate(userId: string, name: string): Promise<Exercise> {
+  async findOrCreate(
+    userId: string,
+    name: string,
+    metric: ExerciseMetric = 'reps',
+  ): Promise<Exercise> {
     const trimmed = name.trim();
     const existing = (await exercisesRepo.byUser(userId)).find(
       (e) => e.name.toLowerCase() === trimmed.toLowerCase(),
     );
-    return existing ?? exercisesRepo.create({ userId, name: trimmed });
+    if (existing) return existing;
+    return exercisesRepo.create({ userId, name: trimmed, metric });
   },
 };
 

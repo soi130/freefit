@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAsync } from '../hooks/useAsync';
 import { sessionsRepo, setsRepo, weightRepo } from '../db/repositories';
+import { setVolume } from '../utils/analytics';
 import StatCard from '../components/StatCard';
 import Sheet from '../components/Sheet';
 import WeightForm from '../components/forms/WeightForm';
@@ -27,7 +28,7 @@ export default function Today() {
     let lastSummary = 'No workouts yet';
     if (last) {
       const sets = await setsRepo.bySession(last.id);
-      const volume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+      const volume = sets.reduce((sum, s) => sum + setVolume(s), 0);
       lastSummary = `${last.workoutName || 'Workout'} · ${sets.length} sets · ${volume.toLocaleString()} kg vol`;
     }
     return { latestWeight, thisWeek, last, lastSummary };

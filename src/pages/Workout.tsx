@@ -1,47 +1,69 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { ExerciseMetric, WorkoutSession } from '../types';
 import { useUser } from '../hooks/useUser';
 import { useAsync } from '../hooks/useAsync';
+import { useElapsed } from '../hooks/useElapsed';
 import { useRestTimer } from '../hooks/useRestTimer';
 import { useWakeLock } from '../hooks/useWakeLock';
-import {
-  exercisesRepo,
-  sessionsRepo,
-  setsRepo,
-  settingsRepo,
-} from '../db/repositories';
-import Sheet from '../components/Sheet';
+import { exercisesRepo, sessionsRepo, setsRepo, settingsRepo } from '../db/repositories';
+import { templateById } from '../data/templates';
+import type { WorkoutTemplate } from '../data/templates';
 import ExerciseCard from '../components/workout/ExerciseCard';
-import ExercisePicker from '../components/workout/ExercisePicker';
+import TemplatePicker from '../components/workout/TemplatePicker';
 import RestTimer from '../components/workout/RestTimer';
-import { PlusIcon } from '../components/icons';
 import { beep, vibrate } from '../utils/audio';
-import { formatDate, todayISO } from '../utils/format';
+import { setVolume } from '../utils/analytics';
+import { formatClock, formatDate, todayISO } from '../utils/format';
 
 const ACTIVE_SESSION_KEY = 'activeSessionId';
+
+interface ExMeta {
+  exerciseId: string;
+  name: string;
+  metric: ExerciseMetric;
+  target: string;
+  sets: number;
+}
 
 export default function Workout() {
   const { user } = useUser();
   const navigate = useNavigate();
   const userId = user?.id ?? '';
 
+  const [ready, setReady] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [order, setOrder] = useState<string[]>([]);
-  const [localNames, setLocalNames] = useState<Record<string, string>>({});
-  const [name, setName] = useState('');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [startedAt, setStartedAt] = useState<string | null>(null);
+  const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
+  const [exMeta, setExMeta] = useState<ExMeta[]>([]);
   const initRef = useRef(false);
 
   const timer = useRestTimer(() => {
     beep(400);
     vibrate([300, 120, 300]);
   });
-  // Keep the screen awake for the whole workout.
-  useWakeLock(true);
+  useWakeLock(!!sessionId);
 
   const restSeconds = user?.defaultRestSeconds ?? 90;
+  const elapsed = useElapsed(startedAt);
 
-  // Resume the in-progress session or start a fresh one.
+  async function activate(session: WorkoutSession) {
+    const tpl = templateById(session.templateId);
+    setSessionId(session.id);
+    setStartedAt(session.createdAt);
+    setTemplate(tpl ?? null);
+    if (tpl) {
+      const metas = await Promise.all(
+        tpl.exercises.map(async (te) => {
+          const ex = await exercisesRepo.findOrCreate(userId, te.name, te.metric);
+          return { exerciseId: ex.id, name: ex.name, metric: te.metric, target: te.target, sets: te.sets };
+        }),
+      );
+      setExMeta(metas);
+    }
+  }
+
+  // Resume an in-progress session, or fall back to the template picker.
   useEffect(() => {
     if (!userId || initRef.current) return;
     initRef.current = true;
@@ -49,74 +71,33 @@ export default function Workout() {
       const existingId = await settingsRepo.get(ACTIVE_SESSION_KEY);
       if (existingId) {
         const s = await sessionsRepo.get(existingId);
-        if (s && s.userId === userId) {
-          setSessionId(s.id);
-          setName(s.workoutName);
-          return;
-        }
+        if (s && s.userId === userId) await activate(s);
       }
-      const created = await sessionsRepo.create({
-        userId,
-        date: todayISO(),
-        workoutName: '',
-        notes: '',
-      });
-      await settingsRepo.set(ACTIVE_SESSION_KEY, created.id);
-      setSessionId(created.id);
+      setReady(true);
     })();
   }, [userId]);
 
   const { data, reload } = useAsync(async () => {
     if (!sessionId) return null;
-    const [sets, exercises] = await Promise.all([
-      setsRepo.bySession(sessionId),
-      exercisesRepo.byUser(userId),
-    ]);
-    return { sets, exercises };
+    return setsRepo.bySession(sessionId);
   }, [sessionId]);
 
-  const sets = data?.sets ?? [];
-  const exercises = data?.exercises ?? [];
+  const sets = data ?? [];
 
-  // Make sure any exercise that already has logged sets is shown.
-  useEffect(() => {
-    const fromSets: string[] = [];
-    for (const s of sets) if (!fromSets.includes(s.exerciseId)) fromSets.push(s.exerciseId);
-    setOrder((prev) => {
-      const missing = fromSets.filter((id) => !prev.includes(id));
-      return missing.length ? [...prev, ...missing] : prev;
+  async function startTemplate(tpl: WorkoutTemplate) {
+    const created = await sessionsRepo.create({
+      userId,
+      date: todayISO(),
+      workoutName: tpl.name,
+      templateId: tpl.id,
+      notes: '',
     });
-  }, [sets]);
-
-  function nameFor(exerciseId: string): string {
-    return (
-      localNames[exerciseId] ??
-      sets.find((s) => s.exerciseId === exerciseId)?.exerciseName ??
-      exercises.find((e) => e.id === exerciseId)?.name ??
-      'Exercise'
-    );
-  }
-
-  async function pickExercise(rawName: string) {
-    const ex = await exercisesRepo.findOrCreate(userId, rawName);
-    setLocalNames((m) => ({ ...m, [ex.id]: ex.name }));
-    setOrder((o) => (o.includes(ex.id) ? o : [...o, ex.id]));
-    setPickerOpen(false);
-    reload();
-  }
-
-  function removeExercise(exerciseId: string) {
-    setOrder((o) => o.filter((id) => id !== exerciseId));
-  }
-
-  async function saveName() {
-    if (!sessionId) return;
-    await sessionsRepo.update(sessionId, { workoutName: name.trim() });
+    await settingsRepo.set(ACTIVE_SESSION_KEY, created.id);
+    await activate(created);
   }
 
   async function finish() {
     if (!sessionId) return;
-    await saveName();
     if (sets.length === 0) await sessionsRepo.delete(sessionId);
     await settingsRepo.set(ACTIVE_SESSION_KEY, '');
     navigate('/');
@@ -131,50 +112,51 @@ export default function Workout() {
     navigate('/');
   }
 
-  if (!user || !sessionId) return null;
+  if (!user || !ready) return null;
+  if (!sessionId) return <TemplatePicker onPick={startTemplate} />;
 
-  const totalVolume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+  const totalVolume = sets.reduce((sum, s) => sum + setVolume(s), 0);
 
   return (
     <div className="space-y-5 pb-4">
-      <header className="space-y-2">
+      <header className="space-y-3">
         <p className="text-sm font-bold text-olive-700/70">{formatDate(todayISO())}</p>
-        <input
-          className="input"
-          type="text"
-          placeholder="Workout name (e.g. Push day)"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={saveName}
-        />
-        <div className="flex items-center justify-between px-1">
-          <span className="text-sm font-bold text-ink/60">
-            {sets.length} {sets.length === 1 ? 'set' : 'sets'}
-          </span>
-          <span className="text-sm font-black text-olive-700">
-            {totalVolume.toLocaleString()} kg volume
-          </span>
+        <div className="card flex items-center justify-between">
+          <div>
+            <p className="text-3xl font-black tabular-nums text-ink">{formatClock(elapsed)}</p>
+            {template && (
+              <p className="text-xs font-bold text-ink/50">~{template.estMinLow}–{template.estMinHigh} min target</p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-black text-olive-700">{totalVolume.toLocaleString()} kg</p>
+            <p className="text-xs font-semibold text-ink/40">
+              {sets.length} {sets.length === 1 ? 'set' : 'sets'}
+            </p>
+          </div>
         </div>
+        {template && <h1 className="px-1 text-base font-black text-ink">{template.name}</h1>}
       </header>
 
-      {order.map((id) => (
+      {exMeta.map((m) => (
         <ExerciseCard
-          key={id}
+          key={m.exerciseId}
           userId={userId}
           sessionId={sessionId}
-          exerciseId={id}
-          exerciseName={nameFor(id)}
-          sets={sets.filter((s) => s.exerciseId === id).sort((a, b) => a.setNumber - b.setNumber)}
+          exerciseId={m.exerciseId}
+          exerciseName={m.name}
+          metric={m.metric}
+          target={m.target}
+          targetSets={m.sets}
+          sets={sets
+            .filter((s) => s.exerciseId === m.exerciseId)
+            .sort((a, b) => a.setNumber - b.setNumber)}
           onChanged={reload}
-          onRemove={() => removeExercise(id)}
-          onSetLogged={() => timer.start(restSeconds)}
+          onSetLogged={(metric) => {
+            if (metric !== 'cardio') timer.start(restSeconds);
+          }}
         />
       ))}
-
-      <button className="btn-ghost w-full" onClick={() => setPickerOpen(true)}>
-        <PlusIcon width={22} height={22} />
-        Add exercise
-      </button>
 
       <div className="grid grid-cols-2 gap-3">
         <button className="btn-ghost" onClick={cancel}>
@@ -186,10 +168,6 @@ export default function Workout() {
       </div>
 
       {timer.active && <div className="h-16" aria-hidden />}
-
-      <Sheet open={pickerOpen} title="Add exercise" onClose={() => setPickerOpen(false)}>
-        <ExercisePicker exercises={exercises} activeIds={order} onPick={pickExercise} />
-      </Sheet>
 
       <RestTimer timer={timer} />
     </div>

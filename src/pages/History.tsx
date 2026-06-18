@@ -5,7 +5,8 @@ import { useUser } from '../hooks/useUser';
 import { useAsync } from '../hooks/useAsync';
 import { sessionsRepo, setsRepo, weightRepo } from '../db/repositories';
 import Sheet from '../components/Sheet';
-import { formatDate, formatWeight } from '../utils/format';
+import { setVolume } from '../utils/analytics';
+import { formatDate, formatSet, formatWeight } from '../utils/format';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -35,7 +36,7 @@ function SessionDetail({ session, sets }: { session: WorkoutSession; sets: Worko
     return order.map((id) => ({ id, name: byExercise.get(id)![0].exerciseName, sets: byExercise.get(id)! }));
   }, [sets]);
 
-  const volume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+  const volume = sets.reduce((sum, s) => sum + setVolume(s), 0);
 
   return (
     <div className="space-y-4">
@@ -52,9 +53,7 @@ function SessionDetail({ session, sets }: { session: WorkoutSession; sets: Worko
                 className="flex justify-between rounded-card border-2 border-olive-200 bg-olive-50 px-3 py-1.5 text-sm font-bold"
               >
                 <span className="text-ink/40">#{s.setNumber}</span>
-                <span>
-                  {formatWeight(s.weight)} × {s.reps}
-                </span>
+                <span>{formatSet(s)}</span>
               </li>
             ))}
           </ul>
@@ -80,7 +79,7 @@ export default function History() {
     for (const s of sets) {
       const cur = stats.get(s.sessionId) ?? { setCount: 0, volume: 0 };
       cur.setCount += 1;
-      cur.volume += s.weight * s.reps;
+      cur.volume += setVolume(s);
       stats.set(s.sessionId, cur);
     }
     const logged = sessions.filter((s) => stats.has(s.id));

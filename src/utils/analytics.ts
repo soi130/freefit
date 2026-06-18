@@ -1,5 +1,10 @@
 import type { WeightLog, WorkoutSession, WorkoutSet } from '../types';
 
+// Volume only counts weighted, rep-based sets; time/cardio/rounds contribute 0.
+export function setVolume(s: WorkoutSet): number {
+  return (s.metric ?? 'reps') === 'reps' ? s.weight * s.reps : 0;
+}
+
 export interface VolumePoint {
   date: string;
   volume: number;
@@ -23,7 +28,7 @@ export interface PersonalRecord {
 export function sessionVolumes(sessions: WorkoutSession[], sets: WorkoutSet[]): VolumePoint[] {
   const bySession = new Map<string, number>();
   for (const s of sets) {
-    bySession.set(s.sessionId, (bySession.get(s.sessionId) ?? 0) + s.weight * s.reps);
+    bySession.set(s.sessionId, (bySession.get(s.sessionId) ?? 0) + setVolume(s));
   }
   return sessions
     .filter((s) => bySession.has(s.id))
@@ -57,6 +62,7 @@ export function estimateOneRepMax(weight: number, reps: number): number {
 export function personalRecords(sets: WorkoutSet[]): PersonalRecord[] {
   const byExercise = new Map<string, PersonalRecord>();
   for (const s of sets) {
+    if ((s.metric ?? 'reps') !== 'reps' || s.weight <= 0) continue;
     const e1rm = estimateOneRepMax(s.weight, s.reps);
     const current = byExercise.get(s.exerciseId);
     if (!current) {

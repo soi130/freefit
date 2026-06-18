@@ -8,11 +8,18 @@ export interface User {
   updatedAt: string;
 }
 
+// How an exercise is measured. For non-'reps' metrics the measured quantity is
+// stored in WorkoutSet.reps with the unit implied here (time→seconds,
+// cardio→minutes, rounds→one round per set); WorkoutSet.weight is the load
+// (0 when bodyweight).
+export type ExerciseMetric = 'reps' | 'time' | 'cardio' | 'rounds';
+
 export interface WorkoutSession {
   id: string;
   userId: string;
   date: string; // ISO date (YYYY-MM-DD)
   workoutName: string;
+  templateId: string; // '' for ad-hoc sessions
   notes: string;
   createdAt: string;
   updatedAt: string;
@@ -22,6 +29,7 @@ export interface Exercise {
   id: string;
   userId: string;
   name: string;
+  metric: ExerciseMetric;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +40,7 @@ export interface WorkoutSet {
   userId: string;
   exerciseId: string;
   exerciseName: string;
+  metric: ExerciseMetric;
   setNumber: number;
   reps: number;
   weight: number;
