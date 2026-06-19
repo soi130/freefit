@@ -7,7 +7,7 @@ export interface TemplateExercise {
   target: string; // human-readable target, e.g. "7–8", "45 sec", "15 min"
 }
 
-export type TemplateGroup = 'Custom' | 'Upper' | 'Lower' | 'Core';
+export type TemplateGroup = 'Custom' | 'Full Body' | 'Upper' | 'Lower' | 'Core';
 
 export interface WorkoutTemplate {
   id: string;
@@ -44,6 +44,21 @@ const rounds = (name: string, sets: number, target: string): TemplateExercise =>
 });
 
 export const TEMPLATES: WorkoutTemplate[] = [
+  {
+    id: 'king-of-compound',
+    group: 'Full Body',
+    name: 'King of Compound',
+    estMinLow: 55,
+    estMinHigh: 65,
+    exercises: [
+      r('Dumbbell or Barbell Squat', 4, '6–8'),
+      r('Bench Press', 4, '6–8'),
+      r('Romanian Deadlift', 4, '6–8'),
+      r('Pull Up or Lat Pulldown', 4, '6–8'),
+      r('Dumbbell Shoulder Press', 4, '6–8'),
+      t('Farmers Carry', 4, '30 sec'),
+    ],
+  },
   {
     id: 'upper-1',
     group: 'Upper',
@@ -183,6 +198,7 @@ export const TEMPLATE_GROUPS: TemplateGroup[] = ['Upper', 'Lower', 'Core'];
 // Display order + labels for the picker (custom courses on top).
 export const PICKER_GROUPS: { group: TemplateGroup; label: string }[] = [
   { group: 'Custom', label: 'My courses' },
+  { group: 'Full Body', label: 'Full body' },
   { group: 'Upper', label: 'Upper' },
   { group: 'Lower', label: 'Lower' },
   { group: 'Core', label: 'Core' },
