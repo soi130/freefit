@@ -93,15 +93,22 @@ export default function ExerciseCard({
   const targetLabel =
     metric === 'cardio' || metric === 'rounds' ? target : `${targetSets} × ${target}`;
   const done = sets.length;
+  const complete = done >= targetSets;
+
+  // Pink while sets remain, green once the target is hit.
+  const containerCls = complete ? 'border-olive-500 bg-olive-500/10' : 'border-brick-400 bg-brick-500/5';
+  const chipCls = complete ? 'bg-olive-500/20 text-accent' : 'bg-brick-500/15 text-brick-500';
+  const rowCls = complete ? 'border-olive-400 bg-olive-500/10' : 'border-line bg-subtle';
 
   return (
-    <div className="card space-y-3">
+    <div className={`card space-y-3 ${containerCls}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-base font-black text-ink">{exerciseName}</h3>
           <p className="text-xs font-bold text-accent/70">Target: {targetLabel}</p>
         </div>
-        <span className="shrink-0 rounded-card bg-accent/15 px-2 py-1 text-xs font-black text-accent">
+        <span className={`inline-flex shrink-0 items-center gap-1 rounded-card px-2 py-1 text-xs font-black ${chipCls}`}>
+          {complete && <CheckIcon width={14} height={14} />}
           {done}/{targetSets}
         </span>
       </div>
@@ -117,7 +124,7 @@ export default function ExerciseCard({
           {sets.map((s) => (
             <li
               key={s.id}
-              className="flex items-center justify-between rounded-card border-2 border-line bg-subtle px-3 py-2"
+              className={`flex items-center justify-between rounded-card border-2 px-3 py-2 ${rowCls}`}
             >
               <span className="text-sm font-bold text-ink">
                 <span className="text-ink/40">
