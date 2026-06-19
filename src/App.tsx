@@ -4,6 +4,7 @@ import { UserProvider, useUser } from './hooks/useUser';
 import BottomNav from './components/BottomNav';
 import Today from './pages/Today';
 import Workout from './pages/Workout';
+import CreateCourse from './pages/CreateCourse';
 import History from './pages/History';
 import Settings from './pages/Settings';
 
@@ -30,6 +31,7 @@ function Shell() {
           <Routes>
             <Route path="/" element={<Today />} />
             <Route path="/workout" element={<Workout />} />
+            <Route path="/create" element={<CreateCourse />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/history" element={<History />} />
             <Route path="/settings" element={<Settings />} />

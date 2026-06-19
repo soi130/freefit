@@ -44,9 +44,9 @@ export default function Today() {
       </header>
 
       <div className="grid grid-cols-2 gap-3">
-        <button className="btn-primary h-20 flex-col text-base" onClick={() => navigate('/workout')}>
+        <button className="btn-primary h-20 flex-col text-base" onClick={() => navigate('/create')}>
           <PlusIcon width={28} height={28} />
-          Start Workout
+          Create Course
         </button>
         <button className="btn-brick h-20 flex-col text-base" onClick={() => setWeightOpen(true)}>
           <ScaleIcon width={28} height={28} />

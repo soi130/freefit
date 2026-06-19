@@ -7,9 +7,11 @@ export interface TemplateExercise {
   target: string; // human-readable target, e.g. "7–8", "45 sec", "15 min"
 }
 
+export type TemplateGroup = 'Custom' | 'Upper' | 'Lower' | 'Core';
+
 export interface WorkoutTemplate {
   id: string;
-  group: 'Upper' | 'Lower' | 'Core';
+  group: TemplateGroup;
   name: string;
   estMinLow: number;
   estMinHigh: number;
@@ -176,7 +178,15 @@ export const TEMPLATES: WorkoutTemplate[] = [
   },
 ];
 
-export const TEMPLATE_GROUPS: WorkoutTemplate['group'][] = ['Upper', 'Lower', 'Core'];
+export const TEMPLATE_GROUPS: TemplateGroup[] = ['Upper', 'Lower', 'Core'];
+
+// Display order + labels for the picker (custom courses on top).
+export const PICKER_GROUPS: { group: TemplateGroup; label: string }[] = [
+  { group: 'Custom', label: 'My courses' },
+  { group: 'Upper', label: 'Upper' },
+  { group: 'Lower', label: 'Lower' },
+  { group: 'Core', label: 'Core' },
+];
 
 export function templateById(id: string): WorkoutTemplate | undefined {
   return TEMPLATES.find((tpl) => tpl.id === id);

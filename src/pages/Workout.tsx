@@ -7,7 +7,8 @@ import { useElapsed } from '../hooks/useElapsed';
 import { useRestTimer } from '../hooks/useRestTimer';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { exercisesRepo, sessionsRepo, setsRepo, settingsRepo } from '../db/repositories';
-import { templateById } from '../data/templates';
+import { customTemplatesRepo } from '../db/customTemplates';
+import { TEMPLATES } from '../data/templates';
 import type { WorkoutTemplate } from '../data/templates';
 import ExerciseCard from '../components/workout/ExerciseCard';
 import TemplatePicker from '../components/workout/TemplatePicker';
@@ -36,6 +37,7 @@ export default function Workout() {
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
   const [exMeta, setExMeta] = useState<ExMeta[]>([]);
+  const [allTemplates, setAllTemplates] = useState<WorkoutTemplate[]>(TEMPLATES);
   const initRef = useRef(false);
 
   const timer = useRestTimer(() => {
@@ -47,8 +49,8 @@ export default function Workout() {
   const restSeconds = user?.defaultRestSeconds ?? 90;
   const elapsed = useElapsed(startedAt);
 
-  async function activate(session: WorkoutSession) {
-    const tpl = templateById(session.templateId);
+  async function activate(session: WorkoutSession, templates: WorkoutTemplate[]) {
+    const tpl = templates.find((t) => t.id === session.templateId);
     setSessionId(session.id);
     setStartedAt(session.createdAt);
     setTemplate(tpl ?? null);
@@ -68,10 +70,13 @@ export default function Workout() {
     if (!userId || initRef.current) return;
     initRef.current = true;
     (async () => {
+      const custom = await customTemplatesRepo.all();
+      const templates = [...TEMPLATES, ...custom];
+      setAllTemplates(templates);
       const existingId = await settingsRepo.get(ACTIVE_SESSION_KEY);
       if (existingId) {
         const s = await sessionsRepo.get(existingId);
-        if (s && s.userId === userId) await activate(s);
+        if (s && s.userId === userId) await activate(s, templates);
       }
       setReady(true);
     })();
@@ -93,7 +98,7 @@ export default function Workout() {
       notes: '',
     });
     await settingsRepo.set(ACTIVE_SESSION_KEY, created.id);
-    await activate(created);
+    await activate(created, allTemplates);
   }
 
   async function finish() {
@@ -112,8 +117,16 @@ export default function Workout() {
     navigate('/');
   }
 
+  async function deleteCourse(tpl: WorkoutTemplate) {
+    if (!confirm(`Delete “${tpl.name}”?`)) return;
+    await customTemplatesRepo.remove(tpl.id);
+    setAllTemplates((list) => list.filter((t) => t.id !== tpl.id));
+  }
+
   if (!user || !ready) return null;
-  if (!sessionId) return <TemplatePicker onPick={startTemplate} />;
+  if (!sessionId) {
+    return <TemplatePicker templates={allTemplates} onPick={startTemplate} onDelete={deleteCourse} />;
+  }
 
   const totalVolume = sets.reduce((sum, s) => sum + setVolume(s), 0);
 
