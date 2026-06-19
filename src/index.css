@@ -3,13 +3,56 @@
 @tailwind utilities;
 
 :root {
+  /* Default scheme: olive (primary) + brick (secondary) */
+  --olive-50: 243 244 234;
+  --olive-100: 228 231 207;
+  --olive-200: 205 211 164;
+  --olive-300: 179 189 120;
+  --olive-400: 154 166 84;
+  --olive-500: 127 141 63;
+  --olive-600: 107 125 58;
+  --olive-700: 82 94 46;
+  --olive-800: 63 72 37;
+  --brick-50: 251 238 234;
+  --brick-100: 245 214 204;
+  --brick-200: 234 176 160;
+  --brick-300: 221 135 112;
+  --brick-400: 207 99 71;
+  --brick-500: 191 74 46;
+  --brick-600: 165 59 36;
+  --brick-700: 130 48 31;
+}
+
+[data-scheme='ocean'] {
+  /* Primary = greenish teal */
+  --olive-50: 230 245 241;
+  --olive-100: 196 233 225;
+  --olive-200: 147 214 200;
+  --olive-300: 92 191 174;
+  --olive-400: 47 167 146;
+  --olive-500: 22 143 124;
+  --olive-600: 19 122 106;
+  --olive-700: 15 97 83;
+  --olive-800: 12 74 64;
+  /* Secondary = ultramarine */
+  --brick-50: 234 236 249;
+  --brick-100: 205 210 240;
+  --brick-200: 163 171 230;
+  --brick-300: 118 130 217;
+  --brick-400: 81 95 204;
+  --brick-500: 59 75 192;
+  --brick-600: 47 61 168;
+  --brick-700: 37 48 127;
+}
+
+:root {
   color-scheme: light;
   --c-cream: 247 245 238;
   --c-ink: 51 50 28;
   --c-surface: 255 255 255;
-  --c-subtle: 243 244 234;
-  --c-line: 205 211 164;
-  --c-accent: 82 94 46;
+  --c-subtle: var(--olive-50);
+  --c-line: var(--olive-200);
+  --c-accent: var(--olive-700);
   --c-stroke: 51 50 28;
 }
 
@@ -20,7 +63,7 @@
   --c-surface: 38 38 30;
   --c-subtle: 48 49 38;
   --c-line: 70 74 52;
-  --c-accent: 179 189 120;
+  --c-accent: var(--olive-300);
   --c-stroke: 8 8 6;
 }
 

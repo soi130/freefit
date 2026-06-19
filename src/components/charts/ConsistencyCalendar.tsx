@@ -1,6 +1,5 @@
 import { todayISO } from '../../utils/format';
-import { useResolvedTheme } from '../../hooks/useTheme';
-import { chartPalette } from './palette';
+import { useChartPalette } from './palette';
 
 const WEEKS = 13;
 
@@ -9,24 +8,18 @@ function isoOf(d: Date): string {
   return new Date(d.getTime() - tz).toISOString().slice(0, 10);
 }
 
-// Brighter = more workouts. The ramp direction flips per theme so "more" always
-// stands out against the background.
-function cellColor(count: number, empty: string, dark: boolean): string {
+// Brighter = more workouts. The ramp (light→dark or dark→light) is chosen per
+// theme so "more" always stands out against the background.
+function cellColor(count: number, empty: string, ramp: [string, string, string]): string {
   if (count <= 0) return empty;
-  if (dark) {
-    if (count === 1) return '#6b7d3a';
-    if (count === 2) return '#9aa654';
-    return '#b3bd78';
-  }
-  if (count === 1) return '#9aa654';
-  if (count === 2) return '#6b7d3a';
-  return '#3f4825';
+  if (count === 1) return ramp[0];
+  if (count === 2) return ramp[1];
+  return ramp[2];
 }
 
 // GitHub-style heatmap of the last 13 weeks (columns = weeks, rows = Mon–Sun).
 export default function ConsistencyCalendar({ counts }: { counts: Map<string, number> }) {
-  const dark = useResolvedTheme() === 'dark';
-  const p = chartPalette(dark);
+  const p = useChartPalette();
   const today = new Date();
   const todayIso = todayISO();
   const dow = (today.getDay() + 6) % 7; // Monday = 0
@@ -52,7 +45,7 @@ export default function ConsistencyCalendar({ counts }: { counts: Map<string, nu
               title={`${cell.iso}: ${cell.count} workout${cell.count === 1 ? '' : 's'}`}
               className="aspect-square w-full rounded-[3px]"
               style={{
-                backgroundColor: cell.future ? 'transparent' : cellColor(cell.count, p.emptyCell, dark),
+                backgroundColor: cell.future ? 'transparent' : cellColor(cell.count, p.emptyCell, p.ramp),
                 border: cell.future ? 'none' : `1px solid ${p.cellBorder}`,
               }}
             />

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useUser } from '../hooks/useUser';
-import { useThemePref } from '../hooks/useTheme';
-import { setThemePref, type ThemePref } from '../utils/theme';
+import { useSchemePref, useThemePref } from '../hooks/useTheme';
+import { setSchemePref, setThemePref, type SchemePref, type ThemePref } from '../utils/theme';
 import ProfileForm from '../components/forms/ProfileForm';
 import {
   enableSound,
@@ -18,6 +18,11 @@ const THEME_OPTIONS: { value: ThemePref; label: string }[] = [
   { value: 'system', label: 'System' },
 ];
 
+const SCHEME_OPTIONS: { value: SchemePref; label: string; swatch: [string, string] }[] = [
+  { value: 'olive', label: 'Olive', swatch: ['#7f8d3f', '#bf4a2e'] },
+  { value: 'ocean', label: 'Ocean', swatch: ['#168f7c', '#3b4bc0'] },
+];
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
@@ -30,6 +35,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function Settings() {
   const { user, refreshUser } = useUser();
   const themePref = useThemePref();
+  const schemePref = useSchemePref();
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [status, setStatus] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -82,22 +88,45 @@ export default function Settings() {
       </Section>
 
       <Section title="Appearance">
-        <div className="card space-y-3">
-          <div className="grid grid-cols-3 gap-2">
-            {THEME_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                className={themePref === opt.value ? 'btn-primary' : 'btn-ghost'}
-                aria-pressed={themePref === opt.value}
-                onClick={() => setThemePref(opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
+        <div className="card space-y-4">
+          <div className="space-y-2">
+            <p className="label">Mode</p>
+            <div className="grid grid-cols-3 gap-2">
+              {THEME_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={themePref === opt.value ? 'btn-primary' : 'btn-ghost'}
+                  aria-pressed={themePref === opt.value}
+                  onClick={() => setThemePref(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs font-semibold text-ink/40">
+              System follows your device’s light/dark setting.
+            </p>
           </div>
-          <p className="text-xs font-semibold text-ink/40">
-            System follows your device’s light/dark setting.
-          </p>
+
+          <div className="space-y-2">
+            <p className="label">Color scheme</p>
+            <div className="grid grid-cols-2 gap-2">
+              {SCHEME_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={`btn ${schemePref === opt.value ? 'border-ink bg-subtle text-ink' : 'btn-ghost'}`}
+                  aria-pressed={schemePref === opt.value}
+                  onClick={() => setSchemePref(opt.value)}
+                >
+                  <span className="flex gap-1">
+                    <span className="h-4 w-4 rounded-full border border-ink/30" style={{ backgroundColor: opt.swatch[0] }} />
+                    <span className="h-4 w-4 rounded-full border border-ink/30" style={{ backgroundColor: opt.swatch[1] }} />
+                  </span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </Section>
 

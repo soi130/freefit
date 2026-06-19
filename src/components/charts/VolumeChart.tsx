@@ -1,11 +1,10 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { VolumePoint } from '../../utils/analytics';
 import { formatShortDate } from '../../utils/format';
-import { useResolvedTheme } from '../../hooks/useTheme';
-import { chartPalette } from './palette';
+import { useChartPalette } from './palette';
 
 export default function VolumeChart({ data }: { data: VolumePoint[] }) {
-  const p = chartPalette(useResolvedTheme() === 'dark');
+  const p = useChartPalette();
   const chartData = data.map((d) => ({ ...d, x: formatShortDate(d.date) }));
   return (
     <div className="h-56 w-full">
@@ -38,7 +37,7 @@ export default function VolumeChart({ data }: { data: VolumePoint[] }) {
             }}
             formatter={(value: number) => [`${value.toLocaleString()} kg`, 'Volume']}
           />
-          <Bar dataKey="volume" fill="#7f8d3f" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="volume" fill={p.bar} radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

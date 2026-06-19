@@ -1,11 +1,10 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { WeightPoint } from '../../utils/analytics';
 import { formatShortDate } from '../../utils/format';
-import { useResolvedTheme } from '../../hooks/useTheme';
-import { chartPalette } from './palette';
+import { useChartPalette } from './palette';
 
 export default function WeightChart({ data }: { data: WeightPoint[] }) {
-  const p = chartPalette(useResolvedTheme() === 'dark');
+  const p = useChartPalette();
   const chartData = data.map((d) => ({ ...d, x: formatShortDate(d.date) }));
   return (
     <div className="h-56 w-full">
@@ -41,9 +40,9 @@ export default function WeightChart({ data }: { data: WeightPoint[] }) {
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#bf4a2e"
+            stroke={p.line}
             strokeWidth={3}
-            dot={{ r: 3, fill: '#bf4a2e' }}
+            dot={{ r: 3, fill: p.line }}
             activeDot={{ r: 5 }}
           />
         </LineChart>
