@@ -197,3 +197,8 @@ export function targetCount(target: string): number | undefined {
   const m = target.match(/\d+/);
   return m ? Number(m[0]) : undefined;
 }
+
+// "4 × 7–8" for set-based exercises; the bare target for cardio/rounds.
+export function targetLabel(ex: TemplateExercise): string {
+  return ex.metric === 'cardio' || ex.metric === 'rounds' ? ex.target : `${ex.sets} × ${ex.target}`;
+}

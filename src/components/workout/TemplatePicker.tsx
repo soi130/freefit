@@ -1,5 +1,7 @@
-import { PICKER_GROUPS } from '../../data/templates';
+import { useState } from 'react';
+import { PICKER_GROUPS, targetLabel } from '../../data/templates';
 import type { WorkoutTemplate } from '../../data/templates';
+import Sheet from '../Sheet';
 import { TrashIcon } from '../icons';
 
 export default function TemplatePicker({
@@ -11,11 +13,13 @@ export default function TemplatePicker({
   onPick: (template: WorkoutTemplate) => void;
   onDelete: (template: WorkoutTemplate) => void;
 }) {
+  const [preview, setPreview] = useState<WorkoutTemplate | null>(null);
+
   return (
     <div className="space-y-7">
       <header>
         <h1 className="text-2xl font-black text-ink">Choose a workout</h1>
-        <p className="text-sm font-semibold text-ink/50">Pick a template to start.</p>
+        <p className="text-sm font-semibold text-ink/50">Tap a course to preview it.</p>
       </header>
 
       {PICKER_GROUPS.map(({ group, label }) => {
@@ -31,7 +35,7 @@ export default function TemplatePicker({
                   <li key={tpl.id} className="relative">
                     <button
                       className="card flex w-full items-center justify-between gap-3 text-left active:translate-y-0.5"
-                      onClick={() => onPick(tpl)}
+                      onClick={() => setPreview(tpl)}
                     >
                       <div>
                         <p className="font-black text-ink">{tpl.name}</p>
@@ -63,6 +67,30 @@ export default function TemplatePicker({
           </section>
         );
       })}
+
+      <Sheet open={!!preview} title={preview?.name ?? ''} onClose={() => setPreview(null)}>
+        {preview && (
+          <div className="space-y-4">
+            <p className="text-sm font-bold text-ink/60">
+              {preview.exercises.length} exercises · ~{preview.estMinLow}–{preview.estMinHigh} min
+            </p>
+            <ul className="space-y-2">
+              {preview.exercises.map((ex, i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between gap-3 rounded-card border-2 border-line bg-subtle px-3 py-2"
+                >
+                  <span className="font-bold text-ink">{ex.name}</span>
+                  <span className="shrink-0 text-sm font-bold text-accent">{targetLabel(ex)}</span>
+                </li>
+              ))}
+            </ul>
+            <button className="btn-primary w-full" onClick={() => onPick(preview)}>
+              Start course
+            </button>
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 }
